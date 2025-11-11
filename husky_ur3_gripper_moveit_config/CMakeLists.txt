@@ -1,10 +1,25 @@
-cmake_minimum_required(VERSION 3.1.3)
+cmake_minimum_required(VERSION 3.8)
 project(husky_ur3_gripper_moveit_config)
 
-find_package(catkin REQUIRED)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-catkin_package()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  PATTERN "setup_assistant.launch" EXCLUDE)
-install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+
+# Install directories
+install(DIRECTORY
+  launch
+  config
+  scripts
+  DESTINATION share/${PROJECT_NAME}
+  PATTERN "setup_assistant.launch*" EXCLUDE
+)
+
+ament_package()
