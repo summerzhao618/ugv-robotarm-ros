@@ -9,9 +9,9 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
-import xacro
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -38,19 +38,23 @@ def generate_launch_description():
         default_value='true'
     )
 
-    # Process xacro file using Python xacro library (official pattern)
+    # Get URDF via xacro command (Clearpath pattern)
     xacro_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro')
-    controller_config_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
-    urdf_extras_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'empty.urdf')
 
-    doc = xacro.parse(open(xacro_file))
-    xacro.process_doc(doc, mappings={
-        'laser_enabled': 'true',
-        'camera_h_enabled': 'true',
-        'control_config_file': controller_config_file,
-        'urdf_extras': urdf_extras_file
-    })
-    robot_description = {'robot_description': doc.toxml()}
+    robot_description_content = ParameterValue(
+        Command([
+            PathJoinSubstitution([FindExecutable(name='xacro')]),
+            ' ',
+            xacro_file,
+            ' ',
+            'laser_enabled:=', LaunchConfiguration('laser_enabled'),
+            ' ',
+            'camera_h_enabled:=', LaunchConfiguration('camera_h_enabled'),
+        ]),
+        value_type=str
+    )
+
+    robot_description = {'robot_description': robot_description_content}
 
     # Robot State Publisher
     robot_state_publisher = Node(
