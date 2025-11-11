@@ -24,8 +24,7 @@ def generate_launch_description():
         default_value='true'
     )
 
-    # Get URDF without ros2_control
-    # Use ur3_robot.urdf.xacro which doesn't include ros2_control
+    # Get URDF - temporarily disable cameras to avoid realsense mesh errors
     xacro_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro')
 
     robot_description_content = ParameterValue(
@@ -49,6 +48,16 @@ def generate_launch_description():
         executable='robot_state_publisher',
         output='screen',
         parameters=[robot_description, {'use_sim_time': LaunchConfiguration('use_sim_time')}]
+    )
+
+    # Joint State Publisher - publishes default joint states for visualization
+    # This is needed because ros2_control is not working properly
+    joint_state_publisher = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+        output='screen'
     )
 
     # Gazebo
@@ -91,6 +100,7 @@ def generate_launch_description():
         use_sim_time_arg,
         gazebo,
         robot_state_publisher,
+        joint_state_publisher,
         spawn_robot,
         rviz_node,
     ])

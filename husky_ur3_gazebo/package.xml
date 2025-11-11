@@ -29,7 +29,11 @@
 
   <!-- Robot description -->
   <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>xacro</exec_depend>
+
+  <!-- Visualization -->
+  <exec_depend>rviz2</exec_depend>
 
   <!-- Core ROS2 dependencies -->
   <depend>rclcpp</depend>
