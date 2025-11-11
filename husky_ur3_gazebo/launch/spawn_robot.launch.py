@@ -7,11 +7,11 @@ Spawn Husky + UR3 + Gripper robot in Gazebo and start controllers
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler, TimerAction
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from launch_ros.parameter_descriptions import ParameterValue
+import xacro
 
 
 def generate_launch_description():
@@ -38,29 +38,24 @@ def generate_launch_description():
         default_value='true'
     )
 
-    # Get URDF via xacro
-    robot_description_content = ParameterValue(
-        Command([
-            'xacro ',
-            os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro'),
-            ' laser_enabled:=', LaunchConfiguration('laser_enabled'),
-            ' camera_h_enabled:=', LaunchConfiguration('camera_h_enabled'),
-            ' control_config_file:=', os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml'),
-        ]),
-        value_type=str
-    )
+    # Process xacro file using Python xacro library (official pattern)
+    xacro_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro')
+    controller_config_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
 
-    robot_description = {'robot_description': robot_description_content}
+    doc = xacro.parse(open(xacro_file))
+    xacro.process_doc(doc, mappings={
+        'laser_enabled': 'true',
+        'camera_h_enabled': 'true',
+        'control_config_file': controller_config_file
+    })
+    robot_description = {'robot_description': doc.toxml()}
 
     # Robot State Publisher
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
-        parameters=[
-            robot_description,
-            {'use_sim_time': LaunchConfiguration('use_sim_time')}
-        ]
+        parameters=[robot_description, {'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
     # Spawn robot in Gazebo
@@ -78,51 +73,47 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Controller parameter file path
-    controller_params_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
-
-    # Load controller configuration to parameter server for gazebo_ros2_control
-    load_joint_state_broadcaster = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'joint_state_broadcaster',
-            '--param-file', controller_params_file
-        ],
-        output='screen',
+    # Load controllers using ExecuteProcess (official pattern from gazebo_ros2_control_demos)
+    load_joint_state_broadcaster = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'joint_state_broadcaster'],
+        output='screen'
     )
 
-    load_diff_drive_controller = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'diff_drive_controller',
-            '--param-file', controller_params_file
-        ],
-        output='screen',
+    load_diff_drive_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'diff_drive_controller'],
+        output='screen'
     )
 
-    load_arm_controller = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'arm_controller',
-            '--param-file', controller_params_file
-        ],
-        output='screen',
+    load_arm_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'arm_controller'],
+        output='screen'
     )
 
-    load_gripper_controllers = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'rh_p12_rn_controller',
-            'rh_r2_controller',
-            'rh_l1_controller',
-            'rh_l2_controller',
-            '--param-file', controller_params_file
-        ],
-        output='screen',
+    load_gripper_controller_1 = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'rh_p12_rn_controller'],
+        output='screen'
+    )
+
+    load_gripper_controller_2 = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'rh_r2_controller'],
+        output='screen'
+    )
+
+    load_gripper_controller_3 = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'rh_l1_controller'],
+        output='screen'
+    )
+
+    load_gripper_controller_4 = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'rh_l2_controller'],
+        output='screen'
     )
 
     # Gripper command republisher node
@@ -185,10 +176,31 @@ def generate_launch_description():
         )
     )
 
-    delay_gripper_controllers = RegisterEventHandler(
+    delay_gripper_controller_1 = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=load_arm_controller,
-            on_exit=[load_gripper_controllers],
+            on_exit=[load_gripper_controller_1],
+        )
+    )
+
+    delay_gripper_controller_2 = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=load_gripper_controller_1,
+            on_exit=[load_gripper_controller_2],
+        )
+    )
+
+    delay_gripper_controller_3 = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=load_gripper_controller_2,
+            on_exit=[load_gripper_controller_3],
+        )
+    )
+
+    delay_gripper_controller_4 = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=load_gripper_controller_3,
+            on_exit=[load_gripper_controller_4],
         )
     )
 
@@ -205,7 +217,10 @@ def generate_launch_description():
         delay_joint_state_broadcaster,
         delay_diff_drive_controller,
         delay_arm_controller,
-        delay_gripper_controllers,
+        delay_gripper_controller_1,
+        delay_gripper_controller_2,
+        delay_gripper_controller_3,
+        delay_gripper_controller_4,
         gripper_publisher,
         twist_mux,
         robot_localization,
