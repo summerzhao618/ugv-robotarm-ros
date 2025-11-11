@@ -13,6 +13,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description():
@@ -40,12 +41,15 @@ def generate_launch_description():
     )
 
     # Get URDF via xacro
-    robot_description_content = Command([
-        'xacro ',
-        os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro'),
-        ' laser_enabled:=', LaunchConfiguration('laser_enabled'),
-        ' camera_h_enabled:=', LaunchConfiguration('camera_h_enabled'),
-    ])
+    robot_description_content = ParameterValue(
+        Command([
+            'xacro ',
+            os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro'),
+            ' laser_enabled:=', LaunchConfiguration('laser_enabled'),
+            ' camera_h_enabled:=', LaunchConfiguration('camera_h_enabled'),
+        ]),
+        value_type=str
+    )
 
     robot_description = {'robot_description': robot_description_content}
 
