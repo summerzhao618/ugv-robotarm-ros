@@ -1,9 +1,12 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
+  <!-- Accept controller config file path as argument from launch file -->
+  <xacro:arg name="controller_config_file" default=""/>
+
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <!-- Parameters loaded via spawner commands in launch file -->
+      <parameters>$(arg controller_config_file)</parameters>
     </plugin>
   </gazebo>
 

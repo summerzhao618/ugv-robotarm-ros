@@ -26,6 +26,7 @@ def generate_launch_description():
 
     # Get URDF - temporarily disable cameras to avoid realsense mesh errors
     xacro_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro')
+    controller_config_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
 
     robot_description_content = ParameterValue(
         Command([
@@ -36,6 +37,8 @@ def generate_launch_description():
             'laser_enabled:=false',
             ' ',
             'camera_h_enabled:=false',
+            ' ',
+            'controller_config_file:=', controller_config_file,
         ]),
         value_type=str
     )
