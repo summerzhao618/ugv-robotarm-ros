@@ -3,7 +3,7 @@
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <parameters>$(arg control_config_file)</parameters>
+      <!-- Parameters will be loaded via launch file instead -->
     </plugin>
   </gazebo>
 

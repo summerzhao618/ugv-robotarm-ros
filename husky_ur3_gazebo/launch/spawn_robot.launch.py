@@ -78,25 +78,37 @@ def generate_launch_description():
         output='screen',
     )
 
+    # Controller parameter file path
+    controller_params_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
+
     # Load controller configuration to parameter server for gazebo_ros2_control
     load_joint_state_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster'],
+        arguments=[
+            'joint_state_broadcaster',
+            '--param-file', controller_params_file
+        ],
         output='screen',
     )
 
     load_diff_drive_controller = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['diff_drive_controller'],
+        arguments=[
+            'diff_drive_controller',
+            '--param-file', controller_params_file
+        ],
         output='screen',
     )
 
     load_arm_controller = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['arm_controller'],
+        arguments=[
+            'arm_controller',
+            '--param-file', controller_params_file
+        ],
         output='screen',
     )
 
@@ -107,7 +119,8 @@ def generate_launch_description():
             'rh_p12_rn_controller',
             'rh_r2_controller',
             'rh_l1_controller',
-            'rh_l2_controller'
+            'rh_l2_controller',
+            '--param-file', controller_params_file
         ],
         output='screen',
     )
