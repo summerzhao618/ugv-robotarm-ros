@@ -7,12 +7,10 @@ Spawn Husky + UR3 + Gripper robot in Gazebo and start controllers
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
 
 
@@ -79,51 +77,36 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Controller Manager
-    controller_manager = Node(
-        package='controller_manager',
-        executable='ros2_control_node',
-        parameters=[
-            robot_description,
-            os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml'),
-        ],
-        output='screen',
-    )
-
-    # Joint State Broadcaster
-    joint_state_broadcaster_spawner = Node(
+    # Load controller configuration to parameter server for gazebo_ros2_control
+    load_joint_state_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+        arguments=['joint_state_broadcaster'],
         output='screen',
     )
 
-    # Diff Drive Controller
-    diff_drive_controller_spawner = Node(
+    load_diff_drive_controller = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['diff_drive_controller', '--controller-manager', '/controller_manager'],
+        arguments=['diff_drive_controller'],
         output='screen',
     )
 
-    # Arm Controller
-    arm_controller_spawner = Node(
+    load_arm_controller = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['arm_controller', '--controller-manager', '/controller_manager'],
+        arguments=['arm_controller'],
         output='screen',
     )
 
-    # Gripper controllers
-    gripper_controllers_spawner = Node(
+    load_gripper_controllers = Node(
         package='controller_manager',
         executable='spawner',
         arguments=[
             'rh_p12_rn_controller',
             'rh_r2_controller',
             'rh_l1_controller',
-            'rh_l2_controller',
-            '--controller-manager', '/controller_manager'
+            'rh_l2_controller'
         ],
         output='screen',
     )
@@ -134,6 +117,7 @@ def generate_launch_description():
         executable='gazebo_rh_pub',
         name='gripper_gazebo_pub',
         output='screen',
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
     # Twist Mux
@@ -160,32 +144,37 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Event handlers for sequential controller spawning
-    spawn_joint_state_broadcaster = RegisterEventHandler(
+    # Delay controller spawning after robot is spawned (give Gazebo time to load)
+    delay_joint_state_broadcaster = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=spawn_robot,
-            on_exit=[joint_state_broadcaster_spawner],
+            on_exit=[
+                TimerAction(
+                    period=2.0,
+                    actions=[load_joint_state_broadcaster],
+                )
+            ],
         )
     )
 
-    spawn_diff_drive_controller = RegisterEventHandler(
+    delay_diff_drive_controller = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[diff_drive_controller_spawner],
+            target_action=load_joint_state_broadcaster,
+            on_exit=[load_diff_drive_controller],
         )
     )
 
-    spawn_arm_controller = RegisterEventHandler(
+    delay_arm_controller = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=diff_drive_controller_spawner,
-            on_exit=[arm_controller_spawner],
+            target_action=load_diff_drive_controller,
+            on_exit=[load_arm_controller],
         )
     )
 
-    spawn_gripper_controllers = RegisterEventHandler(
+    delay_gripper_controllers = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=arm_controller_spawner,
-            on_exit=[gripper_controllers_spawner],
+            target_action=load_arm_controller,
+            on_exit=[load_gripper_controllers],
         )
     )
 
@@ -199,11 +188,10 @@ def generate_launch_description():
         use_sim_time_arg,
         robot_state_publisher,
         spawn_robot,
-        controller_manager,
-        spawn_joint_state_broadcaster,
-        spawn_diff_drive_controller,
-        spawn_arm_controller,
-        spawn_gripper_controllers,
+        delay_joint_state_broadcaster,
+        delay_diff_drive_controller,
+        delay_arm_controller,
+        delay_gripper_controllers,
         gripper_publisher,
         twist_mux,
         robot_localization,

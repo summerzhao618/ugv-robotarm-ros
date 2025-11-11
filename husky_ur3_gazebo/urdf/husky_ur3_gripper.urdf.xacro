@@ -43,6 +43,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <xacro:include filename="$(find husky_ur3_gazebo)/urdf/ur3_robot_gripper.urdf.xacro"/>
   <xacro:include filename="$(find husky_ur3_gazebo)/urdf/accessories/d435_camera_h.urdf.xacro"/>-
   <xacro:include filename="$(find husky_ur3_gazebo)/urdf/accessories/d435_camera_g.urdf.xacro"/>-
+  <xacro:include filename="$(find husky_ur3_gazebo)/urdf/ros2_control.xacro"/>
   <!--xacro:include filename="$(find husky_ur3_gazebo)/urdf/ur3_robot.urdf.xacro"/-->
 
 
@@ -258,6 +259,9 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <drift>0.0001 0.0001 0.0001</drift>
     </plugin>
   </gazebo>
+
+  <!-- ROS2 Control -->
+  <xacro:husky_ur3_ros2_control prefix=""/>
 
   <!-- Optional custom includes. -->
   <xacro:include filename="$(arg urdf_extras)" />
