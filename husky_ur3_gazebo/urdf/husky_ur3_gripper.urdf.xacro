@@ -34,6 +34,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 
   <xacro:arg name="robot_namespace" default="/husky" />
   <xacro:arg name="urdf_extras" default="empty.urdf" />
+  <xacro:arg name="control_config_file" default="" />
 
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="$(find husky_ur3_gazebo)/urdf/decorations.urdf.xacro" />

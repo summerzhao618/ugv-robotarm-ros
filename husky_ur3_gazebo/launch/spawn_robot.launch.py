@@ -45,6 +45,7 @@ def generate_launch_description():
             os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro'),
             ' laser_enabled:=', LaunchConfiguration('laser_enabled'),
             ' camera_h_enabled:=', LaunchConfiguration('camera_h_enabled'),
+            ' control_config_file:=', os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml'),
         ]),
         value_type=str
     )

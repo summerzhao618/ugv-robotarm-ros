@@ -3,7 +3,9 @@
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <parameters>$(find husky_ur3_gazebo)/config/control.yaml</parameters>
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>robot_state_publisher</robot_param_node>
+      <parameters>$(arg control_config_file)</parameters>
     </plugin>
   </gazebo>
 
