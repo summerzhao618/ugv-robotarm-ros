@@ -79,46 +79,56 @@ def generate_launch_description():
         output='screen',
     )
 
-    # Load controllers using ExecuteProcess (official pattern from gazebo_ros2_control_demos)
-    load_joint_state_broadcaster = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'joint_state_broadcaster'],
+    # Controller config file path
+    controller_config_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
+
+    # Load controllers using spawner with parameter file
+    load_joint_state_broadcaster = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster', '--param-file', controller_config_file],
         output='screen'
     )
 
-    load_diff_drive_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'diff_drive_controller'],
+    load_diff_drive_controller = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['diff_drive_controller', '--param-file', controller_config_file],
         output='screen'
     )
 
-    load_arm_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'arm_controller'],
+    load_arm_controller = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['arm_controller', '--param-file', controller_config_file],
         output='screen'
     )
 
-    load_gripper_controller_1 = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'rh_p12_rn_controller'],
+    load_gripper_controller_1 = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['rh_p12_rn_controller', '--param-file', controller_config_file],
         output='screen'
     )
 
-    load_gripper_controller_2 = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'rh_r2_controller'],
+    load_gripper_controller_2 = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['rh_r2_controller', '--param-file', controller_config_file],
         output='screen'
     )
 
-    load_gripper_controller_3 = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'rh_l1_controller'],
+    load_gripper_controller_3 = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['rh_l1_controller', '--param-file', controller_config_file],
         output='screen'
     )
 
-    load_gripper_controller_4 = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'rh_l2_controller'],
+    load_gripper_controller_4 = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['rh_l2_controller', '--param-file', controller_config_file],
         output='screen'
     )
 

@@ -3,7 +3,7 @@
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <parameters>$(find husky_ur3_gazebo)/config/control.yaml</parameters>
+      <!-- Parameters loaded via spawner commands in launch file -->
     </plugin>
   </gazebo>
 
