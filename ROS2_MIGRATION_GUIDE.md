@@ -356,14 +356,37 @@ ros2 node list | grep gripper
 ros2 run husky_ur3_gazebo gazebo_rh_pub
 ```
 
-### Gazebo crashes:
+### Gazebo crashes or robot not spawning:
 ```bash
 # Clear Gazebo cache
 rm -rf ~/.gazebo/
 
 # Check system resources
 htop
+
+# Verify URDF processes correctly
+ros2 run xacro xacro ~/humble_ws/src/ugv-robotarm-ros/husky_ur3_gazebo/urdf/husky_ur3_gripper.urdf.xacro \
+  laser_enabled:=true camera_h_enabled:=true \
+  control_config_file:=~/humble_ws/src/ugv-robotarm-ros/husky_ur3_gazebo/config/control.yaml
+
+# Check for xacro errors
+colcon build --packages-select husky_ur3_gazebo && \
+  source install/setup.bash && \
+  ros2 launch husky_ur3_gazebo spawn_robot.launch.py
 ```
+
+**Common Issues:**
+- **gzserver exit code 255**: Usually indicates gazebo_ros2_control plugin misconfiguration
+  - Ensure `common.gazebo.xacro` is included in main URDF
+  - Verify plugin only passes `<parameters>` tag (not robot_param/robot_param_node)
+  - Check that ros2_control.xacro defines hardware plugin inside `<hardware>` block
+- **"Entity already exists"**: Previous Gazebo instance still running
+  ```bash
+  killall -9 gzserver gzclient
+  ```
+- **Controller manager not found**: ros2_control_node crashed, check that:
+  - ros2_control macro is instantiated in main URDF
+  - Control config file path is correctly passed via xacro argument
 
 ### Robot falls through ground:
 - Ensure world file is loaded correctly
