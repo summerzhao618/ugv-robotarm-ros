@@ -41,12 +41,14 @@ def generate_launch_description():
     # Process xacro file using Python xacro library (official pattern)
     xacro_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro')
     controller_config_file = os.path.join(pkg_husky_ur3_gazebo, 'config', 'control.yaml')
+    urdf_extras_file = os.path.join(pkg_husky_ur3_gazebo, 'urdf', 'empty.urdf')
 
     doc = xacro.parse(open(xacro_file))
     xacro.process_doc(doc, mappings={
         'laser_enabled': 'true',
         'camera_h_enabled': 'true',
-        'control_config_file': controller_config_file
+        'control_config_file': controller_config_file,
+        'urdf_extras': urdf_extras_file
     })
     robot_description = {'robot_description': doc.toxml()}
 
