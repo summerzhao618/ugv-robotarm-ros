@@ -34,9 +34,7 @@ def generate_launch_description():
             urdf_file,
             ' robot_namespace:=/',
             ' urdf_extras:=',
-            empty_urdf,
-            ' control_config:=',
-            control_config
+            empty_urdf
         ]),
         value_type=str
     )
