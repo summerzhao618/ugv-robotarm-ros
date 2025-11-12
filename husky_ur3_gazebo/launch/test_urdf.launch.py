@@ -3,7 +3,7 @@
 import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -19,18 +19,19 @@ def generate_launch_description():
     # Paths
     urdf_file = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'urdf', 'husky_ur3_gripper.urdf.xacro'])
     world_file = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'worlds', 'HRI_lab.world'])
+    empty_urdf = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'urdf', 'empty.urdf'])
 
     # Declare launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
-    # Process the URDF file
-    robot_description_command = [
+    # Process the URDF file using xacro
+    robot_description_content = Command([
         'xacro ',
         urdf_file,
         ' robot_namespace:=/',
         ' urdf_extras:=',
-        PathJoinSubstitution([pkg_husky_ur3_gazebo, 'urdf', 'empty.urdf']),
-    ]
+        empty_urdf
+    ])
 
     # Robot state publisher
     robot_state_publisher_node = Node(
@@ -40,7 +41,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'use_sim_time': use_sim_time,
-            'robot_description': robot_description_command
+            'robot_description': robot_description_content
         }]
     )
 
@@ -80,9 +81,9 @@ def generate_launch_description():
         arguments=[
             '-topic', 'robot_description',
             '-entity', 'husky_ur3',
-            '-x', '0',
-            '-y', '0',
-            '-z', '0.1'
+            '-x', '0.0',
+            '-y', '0.0',
+            '-z', '0.5'
         ]
     )
 
