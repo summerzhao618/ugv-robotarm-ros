@@ -220,8 +220,141 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <material>Gazebo/DarkGrey</material>
   </gazebo>
 
+  <!-- ros2_control hardware interface -->
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
 
+    <!-- Wheel joints for diff drive -->
+    <joint name="front_left_wheel">
+      <command_interface name="velocity">
+        <param name="min">-10</param>
+        <param name="max">10</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
 
+    <joint name="front_right_wheel">
+      <command_interface name="velocity">
+        <param name="min">-10</param>
+        <param name="max">10</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rear_left_wheel">
+      <command_interface name="velocity">
+        <param name="min">-10</param>
+        <param name="max">10</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rear_right_wheel">
+      <command_interface name="velocity">
+        <param name="min">-10</param>
+        <param name="max">10</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- UR3 arm joints -->
+    <joint name="shoulder_pan_joint">
+      <command_interface name="position">
+        <param name="min">-6.2832</param>
+        <param name="max">6.2832</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="shoulder_lift_joint">
+      <command_interface name="position">
+        <param name="min">-6.2832</param>
+        <param name="max">6.2832</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="elbow_joint">
+      <command_interface name="position">
+        <param name="min">-6.2832</param>
+        <param name="max">6.2832</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="wrist_1_joint">
+      <command_interface name="position">
+        <param name="min">-6.2832</param>
+        <param name="max">6.2832</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="wrist_2_joint">
+      <command_interface name="position">
+        <param name="min">-6.2832</param>
+        <param name="max">6.2832</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="wrist_3_joint">
+      <command_interface name="position">
+        <param name="min">-6.2832</param>
+        <param name="max">6.2832</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- Gripper joints -->
+    <joint name="rh_p12_rn">
+      <command_interface name="effort">
+        <param name="min">-100</param>
+        <param name="max">100</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rh_r2">
+      <command_interface name="effort">
+        <param name="min">-100</param>
+        <param name="max">100</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rh_l1">
+      <command_interface name="effort">
+        <param name="min">-100</param>
+        <param name="max">100</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="rh_l2">
+      <command_interface name="effort">
+        <param name="min">-100</param>
+        <param name="max">100</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
 
   <gazebo>
     <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
