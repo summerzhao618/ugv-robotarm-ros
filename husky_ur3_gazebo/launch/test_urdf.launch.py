@@ -2,7 +2,8 @@
 
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, TimerAction
+from launch.event_handlers import OnProcessExit
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
@@ -106,6 +107,36 @@ def generate_launch_description():
         condition=None  # Always launch, but you can make this conditional
     )
 
+    # Spawn joint state broadcaster (with delay to wait for controller_manager)
+    spawn_joint_state_broadcaster = TimerAction(
+        period=3.0,
+        actions=[
+            Node(
+                package='controller_manager',
+                executable='spawner',
+                arguments=['joint_state_broadcaster',
+                          '--controller-manager', '/controller_manager',
+                          '--param-file', control_config],
+                output='screen',
+            )
+        ]
+    )
+
+    # Spawn husky velocity controller with delay
+    spawn_husky_velocity_controller = TimerAction(
+        period=5.0,
+        actions=[
+            Node(
+                package='controller_manager',
+                executable='spawner',
+                arguments=['husky_velocity_controller',
+                          '--controller-manager', '/controller_manager',
+                          '--param-file', control_config],
+                output='screen',
+            )
+        ]
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
@@ -118,4 +149,6 @@ def generate_launch_description():
         gzclient,
         spawn_entity,
         rviz_node,
+        spawn_joint_state_broadcaster,
+        spawn_husky_velocity_controller,
     ])
