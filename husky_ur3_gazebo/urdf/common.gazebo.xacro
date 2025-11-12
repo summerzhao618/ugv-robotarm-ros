@@ -1,13 +1,19 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
-  <!-- Accept controller config file path as argument from launch file -->
-  <xacro:arg name="controller_config_file" default=""/>
+  <!--
+  gazebo_ros2_control plugin WITHOUT <parameters> tag
+
+  The <parameters> tag seems to trigger a bug where the plugin tries to
+  parse robot_description XML as command-line arguments.
+
+  Instead, controller configuration will be loaded to parameter server
+  by the launch file before robot spawn.
+  -->
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <!-- Controller configuration file -->
-      <parameters>$(arg controller_config_file)</parameters>
+      <!-- NO parameters tag - config loaded via launch file -->
     </plugin>
   </gazebo>
 
