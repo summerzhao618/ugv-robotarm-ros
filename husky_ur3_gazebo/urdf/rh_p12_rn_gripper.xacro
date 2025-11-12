@@ -3,9 +3,6 @@
 
 <!-- 210927 YSW: Added hardware interface and modified type of joints -->
 
-  <!-- some parameters -->
-  <xacro:property name="pi" value="3.141592654" />
-
   <!-- Import all Gazebo-customization elements, including Gazebo colors -->
   <xacro:include filename="$(find husky_ur3_gazebo)/urdf/rh_p12_rn.gazebo" />
 

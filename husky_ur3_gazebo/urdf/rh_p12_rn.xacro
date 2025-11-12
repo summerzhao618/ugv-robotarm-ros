@@ -1,9 +1,6 @@
 <?xml version="1.0"?>
 <robot name="rh_p12_rn" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- some parameters -->
-  <xacro:property name="pi" value="3.141592654" />
-
   <!-- Import all Gazebo-customization elements, including Gazebo colors -->
   <xacro:include filename="$(find husky_ur3_gazebo)/urdf/rh_p12_rn.gazebo" />
 
