@@ -6,9 +6,6 @@
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <!-- Tell plugin to get robot_description from robot_state_publisher node -->
-      <robot_param>robot_description</robot_param>
-      <robot_param_node>robot_state_publisher</robot_param_node>
       <!-- Controller configuration file -->
       <parameters>$(arg controller_config_file)</parameters>
     </plugin>
