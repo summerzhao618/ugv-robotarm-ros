@@ -19,12 +19,16 @@ def generate_launch_description():
     # Paths
     nav2_params_file = PathJoinSubstitution([nav_pkg, 'config', 'nav2_params.yaml'])
 
+    # Paths
+    rviz_config_file = PathJoinSubstitution([nav_pkg, 'config', 'nav2.rviz'])
+
     # Launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     autostart = LaunchConfiguration('autostart', default='true')
     params_file = LaunchConfiguration('params_file', default=nav2_params_file)
     use_respawn = LaunchConfiguration('use_respawn', default='false')
     log_level = LaunchConfiguration('log_level', default='info')
+    use_rviz = LaunchConfiguration('use_rviz', default='false')
 
     # Remap params file
     configured_params = RewrittenYaml(
@@ -62,6 +66,23 @@ def generate_launch_description():
         'log_level',
         default_value='info',
         description='log level'
+    )
+
+    declare_use_rviz_cmd = DeclareLaunchArgument(
+        'use_rviz',
+        default_value='false',
+        description='Whether to launch RViz'
+    )
+
+    # RViz2
+    rviz_cmd = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': use_sim_time}],
+        condition=IfCondition(use_rviz)
     )
 
     # SLAM Toolbox (instead of AMCL)
@@ -173,8 +194,10 @@ def generate_launch_description():
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
+    ld.add_action(declare_use_rviz_cmd)
 
     # Add the nodes
+    ld.add_action(rviz_cmd)
     ld.add_action(slam_toolbox_cmd)
     ld.add_action(controller_cmd)
     ld.add_action(planner_cmd)
