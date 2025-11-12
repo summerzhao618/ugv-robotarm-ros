@@ -23,6 +23,7 @@ def generate_launch_description():
     world_file = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'worlds', 'HRI_lab.world'])
     empty_urdf = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'urdf', 'empty.urdf'])
     control_config = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'config', 'control.yaml'])
+    gz_control_config = PathJoinSubstitution([pkg_husky_ur3_gazebo, 'config', 'gazebo_ros2_control.yaml'])
 
     # Declare launch arguments
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
@@ -34,7 +35,9 @@ def generate_launch_description():
             urdf_file,
             ' robot_namespace:=/',
             ' urdf_extras:=',
-            empty_urdf
+            empty_urdf,
+            ' gz_control_config:=',
+            gz_control_config
         ]),
         value_type=str
     )
